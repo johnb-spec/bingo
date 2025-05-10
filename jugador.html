@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel del Jugador - Neón</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1a1a2e;
+      color: #e94560;
+      text-align: center;
+      padding: 20px;
+    }
+    table {
+      margin: 10px auto;
+      border-collapse: collapse;
+    }
+    td {
+      border: 2px solid #0f3460;
+      padding: 20px;
+      width: 50px;
+      height: 50px;
+      font-size: 18px;
+      background-color: #0f3460;
+      color: #fff;
+    }
+    td.marked {
+      background-color: #e94560;
+      color: #fff;
+    }
+    #estadoJuego {
+      margin: 20px;
+      font-size: 18px;
+      color: #ffd700;
+    }
+    button {
+      background-color: #ffd700;
+      color: #1a1a2e;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #e94560;
+      color: #fff;
+    }
+    h2, h3 {
+      color: #ffd700;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🎉 ¡Bienvenido al Bingo!</h2>
+  <div id="nombreJugador"></div>
+  <div id="estadoJuego">⏳ Esperando el inicio del juego...</div>
+  <div id="cartonesContainer"></div>
+  <div>
+    <h3>📢 Números llamados:</h3>
+    <div id="historialNums">-</div>
+  </div>
+  <button onclick="verificarBingo()">¡BINGO!</button>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const nombre = params.get("nombre") || "Jugador";
+    const cartones = parseInt(params.get("cartones")) || 1;
+    const gameId = params.get("id");
+    let cartonesData = [];
+    let numerosLlamados = new Set();
+
+    document.getElementById("nombreJugador").innerHTML = "<strong>Jugador:</strong> " + nombre;
+
+    function crearCartones() {
+      const container = document.getElementById("cartonesContainer");
+      for (let c = 0; c < cartones; c++) {
+        let carton = document.createElement("table");
+        let numeros = [];
+        for (let i = 0; i < 25; i++) {
+          let num;
+          do {
+            num = Math.floor(Math.random() * 75) + 1;
+          } while (numeros.includes(num));
+          numeros.push(num);
+        }
+        cartonesData.push(numeros);
+        for (let i = 0; i < 5; i++) {
+          let row = carton.insertRow();
+          for (let j = 0; j < 5; j++) {
+            let cell = row.insertCell();
+            const valor = numeros[i * 5 + j];
+            cell.textContent = valor;
+            cell.setAttribute("data-num", valor);
+          }
+        }
+        container.appendChild(carton);
+      }
+    }
+
+    function actualizarEstadoJuego() {
+      const activo = localStorage.getItem(gameId + "_activo");
+      const estado = document.getElementById("estadoJuego");
+      if (activo === "true") {
+        estado.textContent = "🎮 ¡El juego ha comenzado! ¡Vamos a jugar!";
+        revisarNumero();
+      } else {
+        estado.textContent = "⏳ Esperando el inicio del juego...";
+      }
+    }
+
+    function revisarNumero() {
+      const num = parseInt(localStorage.getItem(gameId + "_numero"));
+      if (!isNaN(num) && !numerosLlamados.has(num)) {
+        numerosLlamados.add(num);
+        document.getElementById("historialNums").textContent = Array.from(numerosLlamados).join(", ");
+        document.querySelectorAll("td[data-num]").forEach(td => {
+          if (parseInt(td.getAttribute("data-num")) === num) {
+            td.classList.add("marked");
+          }
+        });
+      }
+    }
+
+    function verificarBingo() {
+      let bingo = false;
+      cartonesData.forEach(carton => {
+        for (let i = 0; i < 5; i++) {
+          if (carton.slice(i * 5, i * 5 + 5).every(n => numerosLlamados.has(n))) bingo = true;
+          if ([0, 1, 2, 3, 4].map(j => carton[i + j * 5]).every(n => numerosLlamados.has(n))) bingo = true;
+        }
+      });
+      alert(bingo ? "🎉 ¡BINGO GANADOR!" : "❌ Todavía no tienes bingo.");
+    }
+
+    crearCartones();
+    actualizarEstadoJuego();
+    setInterval(actualizarEstadoJuego, 3000);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Administrador del Bingo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+    input, select, button { padding: 10px; margin: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    #linksContainer { margin-top: 20px; }
+    .link-box { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 10px auto; max-width: 90%; }
+    .link-text { padding: 8px; background: #f0f0f0; border: 1px solid #ccc; font-family: monospace; overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+  <h2>🎯 Panel del Administrador - Bingo</h2>
+  <p><strong>ID de Juego:</strong> <span id="gameId"></span></p>
+
+  <div>
+    <label>Nombre o Teléfono:</label><br>
+    <input type="text" id="nombre" placeholder="Ej: Pedro"><br>
+    <label>Cantidad de cartones (máx. 5):</label><br>
+    <select id="cartones">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select><br>
+    <button onclick="generarLink()">Generar Link</button>
+  </div>
+
+  <div>
+    <button onclick="iniciarJuego()">🚀 Iniciar Juego</button>
+    <button onclick="sacarNumero()">🎲 Generar Número</button>
+  </div>
+
+  <h2 id="numberDisplay">-</h2>
+  <div id="historialNums">Historial de números:</div>
+
+  <h3>🎟️ Links de Jugadores:</h3>
+  <div id="linksContainer"></div>
+
+  <script>
+    const gameId = "game_" + Date.now();
+    document.getElementById("gameId").textContent = gameId;
+
+    const allNumbers = Array.from({ length: 75 }, (_, i) => i + 1);
+    let spokenNumbers = new Set();
+
+    function generarLink() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const cartones = document.getElementById("cartones").value;
+      if (!nombre) {
+        alert("Por favor escribe el nombre o número del jugador.");
+        return;
+      }
+
+      const link = \`https://johnb-spec.github.io/bingo/jugador.html?nombre=\${encodeURIComponent(nombre)}&cartones=\${cartones}&id=\${gameId}\`;
+
+      const div = document.createElement("div");
+      div.className = "link-box";
+      const pre = document.createElement("span");
+      pre.className = "link-text";
+      pre.textContent = link;
+
+      const btn = document.createElement("button");
+      btn.textContent = "📋 Copiar";
+      btn.onclick = () => {
+        navigator.clipboard.writeText(link).then(() => {
+          alert("¡Link copiado!");
+        });
+      };
+
+      div.appendChild(pre);
+      div.appendChild(btn);
+
+      document.getElementById("linksContainer").appendChild(div);
+    }
+
+    function iniciarJuego() {
+      localStorage.setItem(gameId + "_activo", "true");
+      alert("Juego iniciado correctamente.");
+    }
+
+    function sacarNumero() {
+      if (spokenNumbers.size >= allNumbers.length) {
+        alert("Todos los números han sido generados.");
+        return;
+      }
+      let num;
+      do {
+        num = allNumbers[Math.floor(Math.random() * allNumbers.length)];
+      } while (spokenNumbers.has(num));
+      spokenNumbers.add(num);
+
+      document.getElementById("numberDisplay").textContent = num;
+      document.getElementById("historialNums").textContent =
+        "Historial de números: " + Array.from(spokenNumbers).sort((a, b) => a - b).join(", ");
+
+      if ("speechSynthesis" in window) {
+        const msg = new SpeechSynthesisUtterance("Número " + num);
+        msg.lang = "es-ES";
+        window.speechSynthesis.speak(msg);
+      }
+
+      localStorage.setItem(gameId + "_numero", num);
+    }
+  </script>
+
+</body>
+</html>
