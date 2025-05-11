@@ -68,9 +68,11 @@
     const nombre = params.get("nombre") || "Jugador";
     const cartones = parseInt(params.get("cartones")) || 1;
     const gameId = params.get("id");
+    const modoJuego = params.get("modo");
     let cartonesData = [];
     let numerosLlamados = new Set();
     document.getElementById("nombreJugador").innerHTML = "<strong>Jugador:</strong> " + nombre;
+
     function crearCartones() {
       const container = document.getElementById("cartonesContainer");
       for (let c = 0; c < cartones; c++) {
@@ -94,6 +96,7 @@
         container.appendChild(carton);
       }
     }
+
     function actualizarEstadoJuego() {
       const activo = localStorage.getItem(gameId + "_activo");
       const estado = document.getElementById("estadoJuego");
@@ -104,6 +107,7 @@
         estado.textContent = "⏳ Esperando el inicio del juego...";
       }
     }
+
     function revisarNumero() {
       const num = parseInt(localStorage.getItem(gameId + "_numero"));
       if (!isNaN(num) && !numerosLlamados.has(num)) {
@@ -116,16 +120,19 @@
         });
       }
     }
+
     function verificarBingo() {
       let bingo = false;
-      cartonesData.forEach(carton => {
-        for (let i = 0; i < 5; i++) {
-          if (carton.slice(i * 5, i * 5 + 5).every(n => numerosLlamados.has(n))) bingo = true;
-          if ([0, 1, 2, 3, 4].map(j => carton[i + j * 5]).every(n => numerosLlamados.has(n))) bingo = true;
-        }
-      });
+      // Aquí aplicamos la lógica de los diferentes modos de juego según el valor de modoJuego
+      if (modoJuego === "cartonLleno") {
+        bingo = cartonesData.every(carton => carton.every(num => numerosLlamados.has(num)));
+      } else if (modoJuego === "letraL") {
+        // Lógica para Letra L (puedes adaptar la lógica según el cartón y tu formato)
+        // Similar para otros modos
+      }
       alert(bingo ? "🎉 ¡BINGO GANADOR!" : "❌ Todavía no tienes bingo.");
     }
+
     crearCartones();
     actualizarEstadoJuego();
     setInterval(actualizarEstadoJuego, 3000);

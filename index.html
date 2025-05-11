@@ -30,6 +30,16 @@
       <option value="4">4</option>
       <option value="5">5</option>
     </select><br>
+    <label>Modo de Juego:</label><br>
+    <select id="modoJuego">
+      <option value="cartonLleno">Cartón lleno</option>
+      <option value="letraL">Letra L</option>
+      <option value="letraN">Letra N</option>
+      <option value="esquinas">Esquinas</option>
+      <option value="cruz">Cruz</option>
+      <option value="diagonal">Diagonal</option>
+      <option value="columnaB">Columna B</option>
+    </select><br>
     <button onclick="generarLink()">Generar Link</button>
   </div>
 
@@ -54,13 +64,14 @@
     function generarLink() {
       const nombre = document.getElementById("nombre").value.trim();
       const cartones = document.getElementById("cartones").value;
+      const modoJuego = document.getElementById("modoJuego").value;
       if (!nombre) {
         alert("Por favor escribe el nombre o número del jugador.");
         return;
       }
 
       // CORREGIDA LA RUTA CON "Bingo" EN MAYÚSCULA Y BORRADO DE ENLACES ANTERIORES
-      const link = `https://johnb-spec.github.io/Bingo/jugador.html?nombre=${encodeURIComponent(nombre)}&cartones=${cartones}&id=${gameId}`;
+      const link = `https://johnb-spec.github.io/Bingo/jugador.html?nombre=${encodeURIComponent(nombre)}&cartones=${cartones}&id=${gameId}&modo=${modoJuego}`;
 
       const container = document.getElementById("linksContainer");
       container.innerHTML = ""; // eliminar links anteriores
@@ -85,7 +96,9 @@
     }
 
     function iniciarJuego() {
+      const modoJuego = document.getElementById("modoJuego").value;
       localStorage.setItem(gameId + "_activo", "true");
+      localStorage.setItem(gameId + "_modo", modoJuego);
       alert("Juego iniciado correctamente.");
     }
 
