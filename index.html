@@ -59,7 +59,11 @@
         return;
       }
 
-      const link = `https://johnb-spec.github.io/bingo/jugador.html?nombre=${encodeURIComponent(nombre)}&cartones=${cartones}&id=${gameId}`;
+      // CORREGIDA LA RUTA CON "Bingo" EN MAYÚSCULA Y BORRADO DE ENLACES ANTERIORES
+      const link = `https://johnb-spec.github.io/Bingo/jugador.html?nombre=${encodeURIComponent(nombre)}&cartones=${cartones}&id=${gameId}`;
+
+      const container = document.getElementById("linksContainer");
+      container.innerHTML = ""; // eliminar links anteriores
 
       const div = document.createElement("div");
       div.className = "link-box";
@@ -77,8 +81,7 @@
 
       div.appendChild(pre);
       div.appendChild(btn);
-
-      document.getElementById("linksContainer").appendChild(div);
+      container.appendChild(div);
     }
 
     function iniciarJuego() {
