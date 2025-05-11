@@ -109,26 +109,27 @@
     }
 
     function revisarNumero() {
-      const num = parseInt(localStorage.getItem(gameId + "_numero"));
-      if (!isNaN(num) && !numerosLlamados.has(num)) {
-        numerosLlamados.add(num);
-        document.getElementById("historialNums").textContent = Array.from(numerosLlamados).join(", ");
-        document.querySelectorAll("td[data-num]").forEach(td => {
-          if (parseInt(td.getAttribute("data-num")) === num) {
-            td.classList.add("marked");
-          }
+      // Recupera todos los números llamados
+      const numerosRecuperados = localStorage.getItem(gameId + "_numerosLlamados");
+      if (numerosRecuperados) {
+        const numerosAnteriores = new Set(JSON.parse(numerosRecuperados));
+        numerosAnteriores.forEach(num => {
+          numerosLlamados.add(num);
+          document.querySelectorAll("td[data-num]").forEach(td => {
+            if (parseInt(td.getAttribute("data-num")) === num) {
+              td.classList.add("marked");
+            }
+          });
         });
       }
     }
 
     function verificarBingo() {
       let bingo = false;
-      // Aquí aplicamos la lógica de los diferentes modos de juego según el valor de modoJuego
       if (modoJuego === "cartonLleno") {
         bingo = cartonesData.every(carton => carton.every(num => numerosLlamados.has(num)));
       } else if (modoJuego === "letraL") {
-        // Lógica para Letra L (puedes adaptar la lógica según el cartón y tu formato)
-        // Similar para otros modos
+        // Lógica para Letra L
       }
       alert(bingo ? "🎉 ¡BINGO GANADOR!" : "❌ Todavía no tienes bingo.");
     }
